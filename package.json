@@ -1,2 +1,1 @@
-{"name":"jobelyo","version":"0.1.0","private":true,"scripts":{"build":"node bootstrap.js && next build","start":"next start"},"dependencies":{"next":"16.1.6","react":"19.2.4","react-dom":"19.2.4","@supabase/supabase-js":"2.57.4"
-}}
+{"name":"jobelyo","version":"0.1.0","private":true,"scripts":{"build":"node bootstrap.js && next build","start":"next start"},"dependencies":{"next":"16.1.6","react":"19.2.4","react-dom":"19.2.4","@supabase/supabase-js":"2.57.4"}}

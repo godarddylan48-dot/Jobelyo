@@ -52,7 +52,6 @@ export default function Home(){
  const [adminData,setAdminData]=useState(null),[adminBusy,setAdminBusy]=useState(false),[adminError,setAdminError]=useState('');
  const [appOpen,setAppOpen]=useState(false),[installPrompt,setInstallPrompt]=useState(null),[appInstalled,setAppInstalled]=useState(false);
  const [latestJobs,setLatestJobs]=useState([]);
- const [showMoreCities,setShowMoreCities]=useState(false),[showMoreJobs,setShowMoreJobs]=useState(false);
 
  useEffect(()=>{
   let alive=true;
@@ -320,14 +319,20 @@ export default function Home(){
   setTimeout(()=>document.getElementById('results')?.scrollIntoView({behavior:'smooth',block:'start'}),0);
  }
 
+ function openAccount(){
+  setAccountOpen(true);
+  setAuthBusy(false);
+  setAuthStatus('');
+  if(!user)setAuthMode('login');
+  if(profile?.role==='admin')setTimeout(loadAdmin,0);
+ }
+
  return <main>
-  <section className="hero"><div className="nav"><div className="brand">Job<span>elyo</span></div><div className="navActions"><button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}}>📱 <span>Installer l’app</span></button><button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button><button className="accountButton" onClick={()=>{setAccountOpen(true);if(profile?.role==='admin')setTimeout(loadAdmin,0)}}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button><div className="pill">🇫🇷 France entière</div></div></div><div className="heroContent">
+  <section className="hero"><div className="nav"><div className="brand">Job<span>elyo</span></div><div className="navActions"><button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}}>📱 <span>Installer l’app</span></button><button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button><button className="accountButton" onClick={openAccount}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button><div className="pill">🇫🇷 France entière</div></div></div><div className="heroContent">
    <div className="eyebrow">Simple • rapide • sans compte</div><h1>Trouvez un emploi<br/><span>près de chez vous.</span></h1><p>Des offres partout en France. Recherchez, consultez les détails et postulez directement sur le site prévu par l’annonce.</p>{nationalTotal&&<div className="nationalStat"><div><strong>+{nationalTotal.toLocaleString('fr-FR')}</strong><span>offres disponibles partout en France</span></div><small>Compteur national France Travail • Jooble ajoute encore d’autres annonces dans vos recherches</small></div>}
    <form id="searchForm" className="search" onSubmit={search}><label>🔎<input value={job} onChange={e=>setJob(e.target.value)} placeholder="Métier, ex. chauffeur-livreur"/></label><label>📍<input value={place} onChange={e=>setPlace(e.target.value)} placeholder="Ville, ex. Amiens"/></label><select value={radius} onChange={e=>setRadius(e.target.value)}><option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select><button disabled={loading}>{loading?'Recherche…':'Trouver un emploi'}</button></form>
    <div className="searchTools"><button className="alertTrigger" onClick={()=>setAlertOpen(true)}>🔔 Créer une alerte</button><button className="filterTrigger" onClick={()=>setFiltersOpen(true)}>☰ Filtres{activeFilters?` (${activeFilters})`:''}</button><div className="sortWrap"><span>Trier :</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recent">Plus récentes</option><option value="salary">Salaire le plus élevé</option><option value="default">Pertinence</option></select></div><div className="activeFilterPills">{contract!=='all'&&<span>{contract==='interim'?'Intérim':contract.toUpperCase()}</span>}{minSalary&&<span>≥ {minSalary} €/mois</span>}{salaryOnly&&<span>Salaire indiqué</span>}{dateRange!=='all'&&<span>Moins de {dateRange} j</span>}{sourceFilter!=='all'&&<span>{sourceFilter==='jooble'?'Jooble':sourceFilter==='adzuna'?'Adzuna':'France Travail'}</span>}</div></div>
   </div></section>
-
-  <section className="popularJobs" aria-labelledby="popular-title"><div className="popularShell"><div className="popularHead"><span className="small">RECHERCHES POPULAIRES</span><h2 id="popular-title">Emplois populaires en France</h2><p>Accédez rapidement aux recherches les plus utiles, sans surcharger la page.</p></div><div className="popularGroups"><div><h3>Emplois par ville</h3><div className="popularLinks">{[['paris','Paris'],['marseille','Marseille'],['lyon','Lyon'],['toulouse','Toulouse'],['nice','Nice'],['nantes','Nantes'],['bordeaux','Bordeaux'],['lille','Lille'],...(showMoreCities?[['strasbourg','Strasbourg'],['rennes','Rennes'],['rouen','Rouen'],['amiens','Amiens']]:[])].map(([slug,city])=><a key={slug} href={`/?city=${encodeURIComponent(city)}&search=1`} onClick={()=>track('seo_popular_click',{type:'city_all_jobs',value:city})}>Emploi à {city}</a>)}</div><button type="button" className="popularMore" onClick={()=>setShowMoreCities(v=>!v)} aria-expanded={showMoreCities}>{showMoreCities?'Voir moins':'Voir toutes les villes'}</button></div><div><h3>Emplois par métier</h3><div className="popularLinks">{[['chauffeur-livreur','Chauffeur-livreur'],['preparateur-commandes','Préparateur de commandes'],['vendeur','Vendeur'],['agent-entretien','Agent d’entretien'],['serveur','Serveur'],['cuisinier','Cuisinier'],...(showMoreJobs?[['magasinier','Magasinier'],['assistant-administratif','Assistant administratif']]:[])].map(([slug,label])=><a key={slug} href={`/?q=${encodeURIComponent(label)}&search=1`} onClick={()=>track('seo_popular_click',{type:'job_all_france',value:label})}>{label}</a>)}</div><button type="button" className="popularMore" onClick={()=>setShowMoreJobs(v=>!v)} aria-expanded={showMoreJobs}>{showMoreJobs?'Voir moins':'Voir tous les métiers'}</button></div></div><a className="popularAll" href="/emploi">Toutes les recherches métier × ville →</a></div></section>
 
   <section id="results" className="content"><div className="headline"><div><span className="small">{favoritesOnly?'MES FAVORIS':searched?'OFFRES D’EMPLOI':'OFFRES RÉCENTES'}</span><h2>{loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées'}</h2></div>{favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}</div>{!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
    {!searched&&!favoritesOnly&&latestJobs.length>0&&<div className="latestOffers">{latestJobs.map(o=><a className="latestOfferCard" key={o.id} href={`/offres/france-travail/${o.id}`} onClick={()=>track('job_view',{source:'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.location||'').slice(0,80),placement:'homepage_latest'})}><div className="latestOfferIcon">💼</div><div className="latestOfferBody"><h3>{o.title}</h3><p>{o.company}</p><div><span>📍 {o.location||'France'}</span>{o.contract&&<span>• {o.contract}</span>}</div></div><strong className="latestOfferArrow">›</strong></a>)}</div>}
@@ -372,16 +377,16 @@ export default function Home(){
    </section>
   </div>}
 
-  {accountOpen&&<div className="modalBackdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setAccountOpen(false)}}>
+  {accountOpen&&<div className="modalBackdrop" onMouseDown={e=>{if(e.target===e.currentTarget){setAccountOpen(false);setAuthBusy(false);setAuthStatus('')}}}>
    <section className="filterModal accountModal" role="dialog" aria-modal="true" aria-label="Compte Jobelyo">
-    <button className="closeButton" aria-label="Fermer" onClick={()=>setAccountOpen(false)}>×</button>
+    <button className="closeButton" aria-label="Fermer" onClick={()=>{setAccountOpen(false);setAuthBusy(false);setAuthStatus('')}}>×</button>
     {!user?<>
      <div className="modalLabel">COMPTE JOBELYO</div><h2>{authMode==='signup'?'Créer mon compte':authMode==='reset'?'Nouveau mot de passe':'Se connecter'}</h2>
      <div className="authTabs">{authMode!=='reset'&&<><button className={authMode==='login'?'active':''} onClick={()=>{setAuthMode('login');setAuthStatus('')}}>Connexion</button><button className={authMode==='signup'?'active':''} onClick={()=>{setAuthMode('signup');setAuthStatus('')}}>Créer un compte</button></>}</div>
      <form className="alertForm" onSubmit={submitAuth}>
       {authMode!=='reset'&&<><label>Adresse e-mail</label><input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="vous@email.fr" required/></>}
       <label>{authMode==='reset'?'Nouveau mot de passe':'Mot de passe'}</label><input type="password" value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="8 caractères minimum" required/>
-      <button className="applyFilters" disabled={authBusy}>{authBusy?'Patientez…':authMode==='signup'?'Créer mon compte':authMode==='reset'?'Enregistrer le mot de passe':'Se connecter'}</button>
+      <button className="applyFilters" disabled={authBusy}>{authBusy?'Connexion…':authMode==='signup'?'Créer mon compte':authMode==='reset'?'Enregistrer le mot de passe':'Se connecter'}</button>
      </form>
      {authMode==='login'&&<button className="forgotButton" onClick={sendReset}>Mot de passe oublié ?</button>}
      {authStatus&&<div className={authStatus.startsWith('✓')?'alertStatus success':'alertStatus'}>{authStatus}</div>}

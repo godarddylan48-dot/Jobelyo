@@ -717,9 +717,9 @@ footer .brand{color:#1e3a8a;text-shadow:none}
   }
   .latestOfferBody p{
     margin-bottom:4px;
-    font-size:12px;
+    font-size:14px;
   }
-  .latestOfferBody div{font-size:12px}
+  .latestOfferBody div{font-size:14px}
   .latestOfferArrow{font-size:22px}
   .offersRedesign{gap:10px}
   .resultCard{
@@ -765,8 +765,8 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     font-size:11px;
   }
   .previewText{
-    font-size:12px;
-    line-height:1.35;
+    font-size:14px;
+    line-height:1.4;
   }
   .actionsRedesign{
     display:grid;

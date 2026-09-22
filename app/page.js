@@ -29,6 +29,18 @@ function AdBanner({slot}){
 }
 
 
+function LingzioPartner(){
+ return <aside className="partnerCard" aria-label="Offre partenaire">
+  <div className="partnerIcon" aria-hidden="true">🌍</div>
+  <div className="partnerContent">
+   <span className="partnerLabel">Lien partenaire</span>
+   <strong>Améliorez vos langues pour votre carrière</strong>
+   <p>Anglais, espagnol, allemand, français et italien avec Lingzio.</p>
+  </div>
+  <a className="partnerButton" href="https://www.awin1.com/cread.php?awinmid=127997&awinaffid=3073515&ued=https%3A%2F%2Flingzio.com" target="_blank" rel="sponsored noopener noreferrer" onClick={()=>track('affiliate_click',{partner:'lingzio',placement:'job_results'})}>Découvrir Lingzio</a>
+ </aside>;
+}
+
 export default function Home(){
  const [job,setJob]=useState(''),[place,setPlace]=useState(''),[radius,setRadius]=useState('30');
  const [jobs,setJobs]=useState([]),[loading,setLoading]=useState(false),[searched,setSearched]=useState(false),[error,setError]=useState('');
@@ -358,94 +370,26 @@ export default function Home(){
   setTimeout(()=>document.getElementById('results')?.scrollIntoView({behavior:'smooth',block:'start'}),0);
  }
 
- const resultTag=favoritesOnly?'MES FAVORIS':searched?'RÉSULTATS DE RECHERCHE':'OFFRES RÉCENTES';
- const resultTitle=loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées';
- const totalSources=sourceCounts.franceTravail+sourceCounts.jooble+sourceCounts.adzuna;
+ return <main>
+  <section className="hero"><div className="nav"><div className="brand">Job<span>elyo</span></div><div className="navActions"><button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}} aria-label="Installer l’application Jobelyo">📱 <span>Installer l’app</span></button><button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()} aria-label={favoritesOnly?'Afficher toutes les offres':'Afficher mes offres favorites'}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button><button className="accountButton" onClick={()=>{setAccountOpen(true);if(profile?.role==='admin')setTimeout(loadAdmin,0)}} aria-label={user?'Ouvrir mon compte':'Se connecter'}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button><div className="pill">🇫🇷 France entière</div></div></div><div className="heroContent">
+   <div className="eyebrow">Simple • rapide • sans compte</div><h1>Trouvez un emploi<br/><span>près de chez vous.</span></h1><p>Des offres partout en France. Recherchez, consultez les détails et postulez directement sur le site prévu par l’annonce.</p>{nationalTotal&&<div className="nationalStat"><div><strong>+{nationalTotal.toLocaleString('fr-FR')}</strong><span>offres disponibles partout en France</span></div><small>Compteur national France Travail • Jooble ajoute encore d’autres annonces dans vos recherches</small></div>}
+  <form id="searchForm" className="search" onSubmit={search}><label>🔎<input value={job} onChange={e=>setJob(e.target.value)} placeholder="Métier, ex. chauffeur-livreur" aria-label="Métier recherché"/></label><label>📍<input value={place} onChange={e=>setPlace(e.target.value)} placeholder="Ville, ex. Amiens" aria-label="Ville recherchée"/></label><select value={radius} onChange={e=>setRadius(e.target.value)} aria-label="Rayon de recherche"><option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select><button disabled={loading} aria-label="Lancer la recherche d’offres">{loading?'Recherche…':'Trouver un emploi'}</button></form>
+   <div className="searchTools"><button className="alertTrigger" onClick={()=>setAlertOpen(true)}>🔔 Créer une alerte</button><button className="filterTrigger" onClick={()=>setFiltersOpen(true)}>☰ Filtres{activeFilters?` (${activeFilters})`:''}</button><div className="sortWrap"><span>Trier :</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recent">Plus récentes</option><option value="salary">Salaire le plus élevé</option><option value="default">Pertinence</option></select></div><div className="activeFilterPills">{contract!=='all'&&<span>{contract==='interim'?'Intérim':contract.toUpperCase()}</span>}{minSalary&&<span>≥ {minSalary} €/mois</span>}{salaryOnly&&<span>Salaire indiqué</span>}{dateRange!=='all'&&<span>Moins de {dateRange} j</span>}{sourceFilter!=='all'&&<span>{sourceFilter==='jooble'?'Jooble':sourceFilter==='adzuna'?'Adzuna':'France Travail'}</span>}</div></div>
+  <div className="quickSearchLinks" aria-label="Recherches populaires"><div><span>Métiers populaires :</span>{featuredJobLinks.map(([slug,label])=><Link key={slug} href={`/emploi/${slug}/paris`}>Emploi {label}</Link>)}</div><div><span>Villes populaires :</span>{featuredCityLinks.map(([slug,label])=><Link key={slug} href={`/emploi/chauffeur-livreur/${slug}`}>Offres à {label}</Link>)}</div><div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div></div>
+  </div></section>
 
- return <main className="homePage">
-  <section className="hero heroRedesign">
-   <div className="nav navSurface">
-    <div className="brand">Job<span>elyo</span></div>
-    <div className="navActions">
-     <button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}} aria-label="Installer l’application Jobelyo">📱 <span>Installer l’app</span></button>
-     <button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()} aria-label={favoritesOnly?'Afficher toutes les offres':'Afficher mes offres favorites'}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button>
-     <button className="accountButton" onClick={()=>{setAccountOpen(true);if(profile?.role==='admin')setTimeout(loadAdmin,0)}} aria-label={user?'Ouvrir mon compte':'Se connecter'}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button>
-     <div className="pill">🇫🇷 France entière</div>
-    </div>
-   </div>
-   <div className="heroContent homeHeroGrid">
-    <div className="heroPrimary">
-     <div className="eyebrow">Simple • rapide • mobile-first</div>
-     <h1>Trouvez un emploi<br/><span>partout en France.</span></h1>
-     <p>Une recherche plus claire, des cartes d’offres plus utiles et une navigation pensée pour avancer vite, surtout sur mobile.</p>
-     {nationalTotal&&<div className="nationalStat"><div><strong>+{nationalTotal.toLocaleString('fr-FR')}</strong><span>offres disponibles partout en France</span></div><small>Compteur national France Travail • Jooble ajoute encore d’autres annonces dans vos recherches</small></div>}
-     <form id="searchForm" className="search searchRedesign" onSubmit={search}>
-      <label className="searchField">
-       <span className="searchFieldLabel">Métier</span>
-       <div className="searchFieldControl"><span aria-hidden="true">🔎</span><input value={job} onChange={e=>setJob(e.target.value)} placeholder="Ex. chauffeur-livreur" aria-label="Métier recherché"/></div>
-      </label>
-      <label className="searchField">
-       <span className="searchFieldLabel">Ville</span>
-       <div className="searchFieldControl"><span aria-hidden="true">📍</span><input value={place} onChange={e=>setPlace(e.target.value)} placeholder="Ex. Amiens" aria-label="Ville recherchée"/></div>
-      </label>
-      <label className="searchField searchFieldCompact">
-       <span className="searchFieldLabel">Rayon</span>
-       <select value={radius} onChange={e=>setRadius(e.target.value)} aria-label="Rayon de recherche"><option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select>
-      </label>
-      <button disabled={loading} aria-label="Lancer la recherche d’offres">{loading?'Recherche…':'Trouver un emploi'}</button>
-     </form>
-     <div className="searchTools searchToolsRedesign">
-      <button className="alertTrigger" onClick={()=>setAlertOpen(true)}>🔔 Créer une alerte</button>
-      <button className="filterTrigger" onClick={()=>setFiltersOpen(true)}>☰ Filtres{activeFilters?` (${activeFilters})`:''}</button>
-      <div className="sortWrap"><span>Trier :</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recent">Plus récentes</option><option value="salary">Salaire le plus élevé</option><option value="default">Pertinence</option></select></div>
-      <div className="activeFilterPills">{contract!=='all'&&<span>{contract==='interim'?'Intérim':contract.toUpperCase()}</span>}{minSalary&&<span>≥ {minSalary} €/mois</span>}{salaryOnly&&<span>Salaire indiqué</span>}{dateRange!=='all'&&<span>Moins de {dateRange} j</span>}{sourceFilter!=='all'&&<span>{sourceFilter==='jooble'?'Jooble':sourceFilter==='adzuna'?'Adzuna':'France Travail'}</span>}</div>
-     </div>
-     <div className="quickSearchLinks quickSearchLinksRedesign" aria-label="Recherches populaires">
-      <div><span>Métiers populaires</span>{featuredJobLinks.map(([slug,label])=><Link key={slug} href={`/emploi/${slug}/paris`}>Emploi {label}</Link>)}</div>
-      <div><span>Villes populaires</span>{featuredCityLinks.map(([slug,label])=><Link key={slug} href={`/emploi/chauffeur-livreur/${slug}`}>Offres à {label}</Link>)}</div>
-      <div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div>
-     </div>
-    </div>
-    <aside className="heroPanel" aria-label="Aperçu Jobelyo">
-     <div className="heroPanelBadge">Navigation repensée</div>
-     <h2>Un tableau de bord clair pour vos recherches.</h2>
-     <p>Accédez en un geste à la recherche, aux favoris, aux filtres et à votre compte, sans changer vos habitudes ni les fonctionnalités existantes.</p>
-     <div className="heroHighlights">
-      <div><span>Favoris</span><strong>{favorites.length}</strong><small>offre{favorites.length!==1?'s':''} enregistrée{favorites.length!==1?'s':''}</small></div>
-      <div><span>Alertes</span><strong>{user?myAlerts.length:'0'}</strong><small>{user?'liées à votre compte':'disponibles avec compte'}</small></div>
-      <div><span>Sources</span><strong>{searched?totalSources||filteredJobs.length:3}</strong><small>France Travail, Jooble, Adzuna</small></div>
-     </div>
-     <div className="heroPanelSteps">
-      <div><strong>1</strong><span>Recherchez</span><small>Métier, ville et rayon</small></div>
-      <div><strong>2</strong><span>Comparez</span><small>Cartes lisibles et filtres rapides</small></div>
-      <div><strong>3</strong><span>Postulez</span><small>Sur le site officiel de l’annonce</small></div>
-     </div>
-    </aside>
-   </div>
-  </section>
 
-  <section id="results" className="content contentRedesign">
-   <div className="headline headlineRedesign">
-    <div><span className="small">{resultTag}</span><h2>{resultTitle}</h2></div>
-    {favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}
-   </div>
-   <div className="resultSummaryGrid">
-    <div className="summaryCard"><span>Offres affichées</span><strong>{filteredJobs.length}</strong><small>{favoritesOnly?'Dans votre sélection personnelle':'Après tri et filtres appliqués'}</small></div>
-    <div className="summaryCard"><span>Filtres actifs</span><strong>{activeFilters}</strong><small>{activeFilters?'Affinez ou réinitialisez vos critères':'Aucun filtre additionnel'}</small></div>
-    <div className="summaryCard"><span>Navigation</span><strong>{favoritesOnly?'Favoris':'Recherche'}</strong><small>{favoritesOnly?'Retrouvez vos offres sauvegardées':'Passez de la recherche au détail sans friction'}</small></div>
-   </div>
-   {!favoritesOnly&&searched&&!loading&&!error&&filteredJobs.length>0?<div className="resultsHint">Affinez vos résultats avec les filtres, comparez rapidement les offres et explorez les pages métier/ville pour étendre la recherche.</div>:null}
-   {!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
-   {!searched&&!favoritesOnly&&latestJobs.length>0&&<div className="latestSection"><div className="latestSectionHead"><span className="small">À DÉCOUVRIR</span><h3>Les dernières offres ajoutées</h3></div><div className="latestOffers">{latestJobs.map(o=><Link className="latestOfferCard" key={o.id} href={`/offres/france-travail/${encodeURIComponent(o.id)}`} onClick={()=>track('job_view',{source:'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.location||'').slice(0,80),placement:'homepage_latest'})}><div className="latestOfferIcon">💼</div><div className="latestOfferBody"><h3>{o.title}</h3><p>{o.company}</p><div><span>📍 {o.location||'France'}</span>{o.contract&&<span>• {o.contract}</span>}</div></div><strong className="latestOfferArrow">›</strong></Link>)}</div></div>}
+  <section id="results" className="content"><div className="headline"><div><span className="small">{favoritesOnly?'MES FAVORIS':searched?'OFFRES D’EMPLOI':'OFFRES RÉCENTES'}</span><h2>{loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées'}</h2></div>{favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}</div>{!favoritesOnly&&searched&&!loading&&!error&&filteredJobs.length>0?<div className="resultsHint">Affinez vos résultats avec les filtres, ou explorez les pages métier/ville pour trouver plus d’offres locales.</div>:null}{!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
+   {!searched&&!favoritesOnly&&latestJobs.length>0&&<div className="latestOffers">{latestJobs.map(o=><Link className="latestOfferCard" key={o.id} href={`/offres/france-travail/${encodeURIComponent(o.id)}`} onClick={()=>track('job_view',{source:'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.location||'').slice(0,80),placement:'homepage_latest'})}><div className="latestOfferIcon">💼</div><div className="latestOfferBody"><h3>{o.title}</h3><p>{o.company}</p><div><span>📍 {o.location||'France'}</span>{o.contract&&<span>• {o.contract}</span>}</div></div><strong className="latestOfferArrow">›</strong></Link>)}</div>}
    {correctedQuery&&<div className="correctionNotice">✓ Recherche corrigée automatiquement en <strong>{correctedQuery}</strong></div>}
    {error&&<div className="empty">⚠️ {error}</div>}
-   <div className="offers offersRedesign">{filteredJobs.map((o,index)=>{const internalUrl=o.sourceKey==='francetravail'?`/offres/france-travail/${encodeURIComponent(String(o.id).replace(/^ft-/,''))}`:null;return <div className="offerWithAd" key={o.id}><article className="card resultCard"><button className={favoriteIds.has(o.id)?'heart active':'heart'} aria-label="Ajouter aux favoris" onClick={()=>toggleFavorite(o)}>♥</button><div className="cardRail"><div className="icon resultIcon">💼</div>{o.source&&<span className="miniSource">{o.source}</span>}</div><div className="cardMain"><div className="cardTop cardTopRedesign"><div className="cardTitleGroup"><h3>{internalUrl?<Link href={internalUrl} onClick={()=>track('job_view',{source:o.sourceKey||'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'title'})}>{o.title}</Link>:o.title}</h3><p>{o.company}</p></div><div className="cardAside"><span className="distance">📍 {o.city||'France'}</span>{o.created&&<span className="publishedAt">Publié le {formatDate(o.created)}</span>}</div></div><div className="meta metaRedesign">{o.source&&<span className="sourceBadge">{o.source}</span>}{o.contract&&<span>{o.contract}</span>}{o.salary&&<span>{o.salary}</span>}{o.sourceKey==='adzuna'&&<a href="https://www.adzuna.fr/" target="_blank" rel="noopener noreferrer" className="adzunaAttribution">Jobs by Adzuna</a>}</div>{o.description&&<p className="previewText">{o.description.slice(0,180)}{o.description.length>180?'…':''}</p>}<div className="actions actionsRedesign">{internalUrl?<><Link className="jobButton" href={internalUrl} onClick={()=>track('job_view',{source:o.sourceKey||'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'button'})}>Voir l’offre sur Jobelyo</Link><span>Consultez l’offre puis postulez sur le site officiel</span></>:<><button className="detailButton" onClick={()=>{track('job_view',{source:o.sourceKey||o.source||'unknown',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'modal'});setSelected(o)}}>Voir les détails</button><a className="jobButton secondary" href={o.url} target="_blank" rel="noopener noreferrer" onClick={()=>track('apply_click',{source:o.sourceKey||o.source||'unknown',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'card'})}>Postuler</a><span>Candidature externe • aucun compte Jobelyo requis</span></>}</div></div></article>{!favoritesOnly&&searched&&index===3&&<AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_1}/>} {!favoritesOnly&&searched&&index===11&&<AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_2}/>}</div>})}
+   <div className="offers">{filteredJobs.map((o,index)=>{const internalUrl=o.sourceKey==='francetravail'?`/offres/france-travail/${encodeURIComponent(String(o.id).replace(/^ft-/,''))}`:null;return <div className="offerWithAd" key={o.id}><article className="card"><button className={favoriteIds.has(o.id)?'heart active':'heart'} aria-label="Ajouter aux favoris" onClick={()=>toggleFavorite(o)}>♥</button><div className="icon">💼</div><div className="cardMain"><div className="cardTop"><div><h3>{internalUrl?<Link href={internalUrl} onClick={()=>track('job_view',{source:o.sourceKey||'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'title'})}>{o.title}</Link>:o.title}</h3><p>{o.company}</p></div><span className="distance">📍 {o.city}</span></div><div className="meta">{o.source&&<span className="sourceBadge">{o.source}</span>}{o.sourceKey==='adzuna'&&<a href="https://www.adzuna.fr/" target="_blank" rel="noopener noreferrer" className="adzunaAttribution">Jobs by Adzuna</a>}{o.contract&&<span>{o.contract}</span>}{o.salary&&<span>{o.salary}</span>}{o.created&&<span>Publié le {formatDate(o.created)}</span>}</div>{o.description&&<p className="previewText">{o.description.slice(0,180)}{o.description.length>180?'…':''}</p>}<div className="actions">{internalUrl?<><Link className="jobButton" href={internalUrl} onClick={()=>track('job_view',{source:o.sourceKey||'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'button'})}>Voir l’offre sur Jobelyo</Link><span>Consultez l’offre puis postulez sur le site officiel</span></>:<><button className="detailButton" onClick={()=>{track('job_view',{source:o.sourceKey||o.source||'unknown',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'modal'});setSelected(o)}}>Voir les détails</button><a className="jobButton secondary" href={o.url} target="_blank" rel="noopener noreferrer" onClick={()=>track('apply_click',{source:o.sourceKey||o.source||'unknown',job_title:String(o.title||'').slice(0,100),city:String(o.city||'').slice(0,80),placement:'card'})}>Postuler</a><span>Candidature externe • aucun compte Jobelyo requis</span></>}</div></div></article>{!favoritesOnly&&searched&&index===3&&<AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_1}/>} {!favoritesOnly&&searched&&index===6&&<LingzioPartner/>} {!favoritesOnly&&searched&&index===11&&<AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_2}/>}</div>})}
    {favoritesOnly&&!loading&&filteredJobs.length===0&&<div className="empty favoritesEmpty"><strong>♥ Aucun favori pour le moment</strong><span>Enregistrez une offre avec le cœur pour la retrouver ici, même après avoir fermé le site.</span><button className="resetInline" onClick={backToResults}>Revenir aux offres</button></div>}
    {!favoritesOnly&&searched&&!loading&&!error&&filteredJobs.length===0&&<div className="empty">{jobs.length?<>Aucune offre ne correspond à vos filtres. <button className="resetInline" onClick={resetFilters}>Réinitialiser les filtres</button></>:<>Aucune offre trouvée. Vérifiez le métier ou essayez un rayon plus large.</>}</div>}</div>
   </section>
 
-  <section className="promise promiseRedesign"><div><strong>1.</strong><span>Vous recherchez</span><small>Métier + ville + rayon</small></div><div><strong>2.</strong><span>Vous comparez</span><small>Cartes plus lisibles et actions plus claires</small></div><div><strong>3.</strong><span>Vous postulez</span><small>Sur le site officiel de l’annonce</small></div></section>
-  <footer className="siteFooter"><div className="siteFooterTop"><div><div className="brand">Job<span>elyo</span></div><p>Recherche d’offres en France • candidature sans compte Jobelyo.</p></div><nav className="footerLinks" aria-label="Informations"><Link href="/conseils-emploi">Conseils emploi</Link><Link href="/a-propos">À propos</Link><Link href="/contact">Contact</Link><Link href="/mentions-legales">Mentions légales</Link><Link href="/confidentialite">Confidentialité</Link></nav></div></footer>
+  <section className="promise"><div><strong>1.</strong><span>Vous recherchez</span><small>Métier + ville + rayon</small></div><div><strong>2.</strong><span>Vous consultez</span><small>Les détails de l’offre</small></div><div><strong>3.</strong><span>Vous postulez</span><small>Sur le site officiel de l’annonce</small></div></section>
+  <footer><div className="brand">Job<span>elyo</span></div><p>Recherche d’offres en France • candidature sans compte Jobelyo.</p><nav className="footerLinks" aria-label="Informations"><Link href="/conseils-emploi">Conseils emploi</Link><Link href="/a-propos">À propos</Link><Link href="/contact">Contact</Link><Link href="/mentions-legales">Mentions légales</Link><Link href="/confidentialite">Confidentialité</Link></nav></footer>
 
 
   {appOpen&&<div className="modalBackdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setAppOpen(false)}}>

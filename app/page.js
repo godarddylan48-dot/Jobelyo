@@ -6,6 +6,14 @@ import Link from 'next/link';
 import './styles.css';
 
 const supabase=createClient('https://bobmcfcthocluoctrpre.supabase.co','sb_publishable_lBsHenmwJydQC6Vo5_jasw_FpX5rCtb');
+const AUTH_TIMEOUT_MS=15000;
+function withTimeout(promise,message,timeoutMs=AUTH_TIMEOUT_MS){
+ let timer;
+ const timeoutPromise=new Promise((_,reject)=>{
+  timer=setTimeout(()=>reject(new Error(message)),timeoutMs);
+ });
+ return Promise.race([promise,timeoutPromise]).finally(()=>clearTimeout(timer));
+}
 
 
 function AdBanner({slot}){
@@ -133,13 +141,18 @@ export default function Home(){
  useEffect(()=>{
   let mounted=true;
   async function loadSession(){
-   const {data}=await supabase.auth.getSession();
+   try{
+   const {data,error}=await withTimeout(supabase.auth.getSession(),'La récupération de session est trop longue. Réessayez.');
+   if(error)throw error;
    if(mounted) await applySession(data.session);
+   }catch(err){
+   if(mounted)setAuthStatus(err?.message||'Impossible de récupérer la session.');
+   }
   }
   loadSession();
-  const {data:{subscription}}=supabase.auth.onAuthStateChange(async(event,session)=>{
+  const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
    if(event==='PASSWORD_RECOVERY'){setAuthMode('reset');setAccountOpen(true);setAuthStatus('Choisissez votre nouveau mot de passe.')}
-   await applySession(session);
+   Promise.resolve(applySession(session)).catch(err=>setAuthStatus(err?.message||'Impossible de synchroniser la session.'));
   });
   return()=>{mounted=false;subscription.unsubscribe()};
  },[]);
@@ -147,12 +160,19 @@ export default function Home(){
  async function applySession(session){
   const u=session?.user||null; setUser(u);
   if(!u){setProfile(null);setMyAlerts([]);return}
-  await supabase.from('profiles').insert({id:u.id,email:u.email,role:'user'});
-  const [{data:p},{data:saved},{data:alerts}]=await Promise.all([
+  const ensureProfile=await withTimeout(
+   supabase.from('profiles').upsert({id:u.id,email:u.email,role:'user'},{onConflict:'id'}),
+   'La synchronisation du profil prend trop de temps.'
+  );
+  if(ensureProfile.error)throw ensureProfile.error;
+  const [{data:p,error:profileError},{data:saved,error:savedError},{data:alerts,error:alertsError}]=await withTimeout(Promise.all([
    supabase.from('profiles').select('id,email,role').eq('id',u.id).maybeSingle(),
    supabase.from('saved_jobs').select('job_data').eq('user_id',u.id).order('created_at',{ascending:false}),
    supabase.from('job_alerts').select('id,email,query,city,radius,active,created_at').eq('user_id',u.id).order('created_at',{ascending:false})
-  ]);
+  ]),'Le chargement des données du compte est trop long. Réessayez.');
+  if(profileError)throw profileError;
+  if(savedError)throw savedError;
+  if(alertsError)throw alertsError;
   setProfile(p||null); setMyAlerts(alerts||[]);
   const remote=(saved||[]).map(x=>x.job_data).filter(x=>x&&x.id);
   if(remote.length){setFavorites(v=>{const m=new Map([...remote,...v].map(x=>[x.id,x]));return [...m.values()]})}
@@ -163,21 +183,29 @@ export default function Home(){
   try{
    if(authMode==='signup'){
     if(authPassword.length<8)throw new Error('Choisissez un mot de passe d’au moins 8 caractères.');
-    const {data,error}=await supabase.auth.signUp({email:authEmail.trim(),password:authPassword});
+    const {data,error}=await withTimeout(supabase.auth.signUp({email:authEmail.trim(),password:authPassword}),'La création du compte met trop de temps. Réessayez.');
     if(error)throw error;
     if(data.session){setAuthStatus('✓ Compte créé et connecté.');await applySession(data.session)}else setAuthStatus('✓ Compte créé. Vérifiez votre e-mail pour confirmer votre inscription.');
    }else if(authMode==='login'){
-    const {data,error}=await supabase.auth.signInWithPassword({email:authEmail.trim(),password:authPassword});
+    const {data,error}=await withTimeout(supabase.auth.signInWithPassword({email:authEmail.trim(),password:authPassword}),'La connexion met trop de temps. Réessayez.');
     if(error)throw error;setAuthStatus('✓ Connexion réussie.');await applySession(data.session);
    }else if(authMode==='reset'){
     if(authPassword.length<8)throw new Error('Choisissez un mot de passe d’au moins 8 caractères.');
-    const {error}=await supabase.auth.updateUser({password:authPassword});if(error)throw error;setAuthStatus('✓ Mot de passe modifié.');setAuthMode('login');
+    const {error}=await withTimeout(supabase.auth.updateUser({password:authPassword}),'La mise à jour du mot de passe met trop de temps. Réessayez.');if(error)throw error;setAuthStatus('✓ Mot de passe modifié.');setAuthMode('login');
    }
   }catch(err){setAuthStatus(err.message||'Une erreur est survenue.')}finally{setAuthBusy(false)}
  }
  async function sendReset(){
   if(!/^\S+@\S+\.\S+$/.test(authEmail)){setAuthStatus('Entrez votre adresse e-mail.');return}
-  setAuthBusy(true);const {error}=await supabase.auth.resetPasswordForEmail(authEmail.trim(),{redirectTo:window.location.origin});setAuthBusy(false);setAuthStatus(error?error.message:'✓ E-mail de réinitialisation envoyé.');
+  setAuthBusy(true);setAuthStatus('');
+  try{
+   const {error}=await withTimeout(supabase.auth.resetPasswordForEmail(authEmail.trim(),{redirectTo:window.location.origin}),'La demande de réinitialisation met trop de temps. Réessayez.');
+   setAuthStatus(error?error.message:'✓ E-mail de réinitialisation envoyé.');
+  }catch(err){
+   setAuthStatus(err?.message||'Impossible d’envoyer l’e-mail de réinitialisation.');
+  }finally{
+   setAuthBusy(false);
+  }
  }
  async function logout(){
   // Déconnexion robuste, y compris dans la PWA Android.

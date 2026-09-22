@@ -508,7 +508,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
 }
 
 @media(max-width:760px){
-  .heroRedesign{padding:0 12px 18px}
+  .heroRedesign{padding-bottom:18px}
   .navSurface{
     min-height:auto;
     padding-top:10px;
@@ -676,7 +676,6 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     margin-bottom:10px;
   }
   .resultSummaryGrid .summaryCard:last-child,
-  .heroPanelSteps>div:last-child,
   .promiseRedesign>div:last-child{
     grid-column:1 / -1;
   }
@@ -770,14 +769,14 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     line-height:1.35;
   }
   .actionsRedesign{
-    display:flex;
-    flex-wrap:wrap;
+    display:grid;
+    grid-template-columns:1fr;
     gap:8px;
     margin-top:10px;
   }
   .actionsRedesign .detailButton,
   .actionsRedesign .jobButton{
-    width:auto;
+    width:100%;
     min-height:38px;
     padding-inline:12px;
     border-radius:10px;

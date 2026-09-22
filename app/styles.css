@@ -572,7 +572,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
   .searchToolsRedesign .filterTrigger,
   .searchToolsRedesign .favoriteTop,
   .searchToolsRedesign .sortWrap select{
-    min-height:40px;
+    min-height:44px;
   }
   .searchToolsRedesign .sortWrap{
     width:100%;
@@ -777,7 +777,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
   .actionsRedesign .detailButton,
   .actionsRedesign .jobButton{
     width:100%;
-    min-height:38px;
+    min-height:44px;
     padding-inline:12px;
     border-radius:10px;
     font-size:13px;

@@ -74,16 +74,17 @@ const organizationJsonLd = {
 };
 
 export default function RootLayout({ children }) {
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
   return (
     <html lang="fr">
       <body>
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT ? (
+        {adsenseClient ? (
           <Script
             id="jobelyo-adsense"
             strategy="afterInteractive"
             async
             crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
           />
         ) : null}
         {children}

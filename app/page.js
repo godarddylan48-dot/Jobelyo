@@ -53,7 +53,6 @@ export default function Home(){
  const [adminData,setAdminData]=useState(null),[adminBusy,setAdminBusy]=useState(false),[adminError,setAdminError]=useState('');
  const [appOpen,setAppOpen]=useState(false),[installPrompt,setInstallPrompt]=useState(null),[appInstalled,setAppInstalled]=useState(false);
  const [latestJobs,setLatestJobs]=useState([]);
- const [showMoreCities,setShowMoreCities]=useState(false),[showMoreJobs,setShowMoreJobs]=useState(false);
 
  useEffect(()=>{
   let alive=true;
@@ -117,6 +116,14 @@ export default function Home(){
  useEffect(()=>{
   try{localStorage.setItem('jobelyo_favorites',JSON.stringify(favorites))}catch{}
  },[favorites]);
+ useEffect(()=>{
+  try{
+   for(const key of ['jobelyo_recent_searches','jobelyo_recentSearches','jobelyo_search_history','jobelyo_searchHistory']){
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+   }
+  }catch{}
+ },[]);
  useEffect(()=>{
   let alive=true;
   fetch('/api/stats').then(r=>r.json()).then(d=>{if(alive&&Number(d.total)>0)setNationalTotal(Number(d.total))}).catch(()=>{});
@@ -328,7 +335,6 @@ export default function Home(){
    <div className="searchTools"><button className="alertTrigger" onClick={()=>setAlertOpen(true)}>🔔 Créer une alerte</button><button className="filterTrigger" onClick={()=>setFiltersOpen(true)}>☰ Filtres{activeFilters?` (${activeFilters})`:''}</button><div className="sortWrap"><span>Trier :</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recent">Plus récentes</option><option value="salary">Salaire le plus élevé</option><option value="default">Pertinence</option></select></div><div className="activeFilterPills">{contract!=='all'&&<span>{contract==='interim'?'Intérim':contract.toUpperCase()}</span>}{minSalary&&<span>≥ {minSalary} €/mois</span>}{salaryOnly&&<span>Salaire indiqué</span>}{dateRange!=='all'&&<span>Moins de {dateRange} j</span>}{sourceFilter!=='all'&&<span>{sourceFilter==='jooble'?'Jooble':sourceFilter==='adzuna'?'Adzuna':'France Travail'}</span>}</div></div>
   </div></section>
 
-  <section className="popularJobs" aria-labelledby="popular-title"><div className="popularShell"><div className="popularHead"><span className="small">RECHERCHES POPULAIRES</span><h2 id="popular-title">Emplois populaires en France</h2><p>Accédez rapidement aux recherches les plus utiles, sans surcharger la page.</p></div><div className="popularGroups"><div><h3>Emplois par ville</h3><div className="popularLinks">{[['paris','Paris'],['marseille','Marseille'],['lyon','Lyon'],['toulouse','Toulouse'],['nice','Nice'],['nantes','Nantes'],['bordeaux','Bordeaux'],['lille','Lille'],...(showMoreCities?[['strasbourg','Strasbourg'],['rennes','Rennes'],['rouen','Rouen'],['amiens','Amiens']]:[])].map(([slug,city])=><a key={slug} href={`/?city=${encodeURIComponent(city)}&search=1`} onClick={()=>track('seo_popular_click',{type:'city_all_jobs',value:city})}>Emploi à {city}</a>)}</div><button type="button" className="popularMore" onClick={()=>setShowMoreCities(v=>!v)} aria-expanded={showMoreCities}>{showMoreCities?'Voir moins':'Voir toutes les villes'}</button></div><div><h3>Emplois par métier</h3><div className="popularLinks">{[['chauffeur-livreur','Chauffeur-livreur'],['preparateur-commandes','Préparateur de commandes'],['vendeur','Vendeur'],['agent-entretien','Agent d’entretien'],['serveur','Serveur'],['cuisinier','Cuisinier'],...(showMoreJobs?[['magasinier','Magasinier'],['assistant-administratif','Assistant administratif']]:[])].map(([slug,label])=><a key={slug} href={`/?q=${encodeURIComponent(label)}&search=1`} onClick={()=>track('seo_popular_click',{type:'job_all_france',value:label})}>{label}</a>)}</div><button type="button" className="popularMore" onClick={()=>setShowMoreJobs(v=>!v)} aria-expanded={showMoreJobs}>{showMoreJobs?'Voir moins':'Voir tous les métiers'}</button></div></div><Link className="popularAll" href="/emploi">Toutes les recherches métier × ville →</Link></div></section>
 
   <section id="results" className="content"><div className="headline"><div><span className="small">{favoritesOnly?'MES FAVORIS':searched?'OFFRES D’EMPLOI':'OFFRES RÉCENTES'}</span><h2>{loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées'}</h2></div>{favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}</div>{!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
    {!searched&&!favoritesOnly&&latestJobs.length>0&&<div className="latestOffers">{latestJobs.map(o=><Link className="latestOfferCard" key={o.id} href={`/offres/france-travail/${encodeURIComponent(o.id)}`} onClick={()=>track('job_view',{source:'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.location||'').slice(0,80),placement:'homepage_latest'})}><div className="latestOfferIcon">💼</div><div className="latestOfferBody"><h3>{o.title}</h3><p>{o.company}</p><div><span>📍 {o.location||'France'}</span>{o.contract&&<span>• {o.contract}</span>}</div></div><strong className="latestOfferArrow">›</strong></Link>)}</div>}

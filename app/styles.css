@@ -675,9 +675,6 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     gap:8px;
     margin-bottom:10px;
   }
-  .promiseRedesign>div:last-child{
-    grid-column:1 / -1;
-  }
   .resultsHint{
     margin-bottom:10px;
     padding:8px 10px;
@@ -806,6 +803,9 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     margin:4px 12px 18px;
     padding:14px;
     border-radius:16px;
+  }
+  .promiseRedesign>div:last-child{
+    grid-column:1 / -1;
   }
   .promiseRedesign div{
     grid-template-columns:28px 1fr;

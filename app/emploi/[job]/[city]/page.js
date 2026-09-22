@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { landingConfig, landingJobs, SEO_CITIES, SEO_JOBS } from '../../../../lib/seoLanding';
+import { allLandingPaths, landingConfig, landingJobs, SEO_CITIES, SEO_JOBS } from '../../../../lib/seoLanding';
 export const revalidate=1800;
+
+export function generateStaticParams() {
+  return allLandingPaths().map((p) => ({ job: p.jobSlug, city: p.citySlug }));
+}
 
 function dateFr(value){
   if(!value)return'';
@@ -53,7 +57,7 @@ export default async function Page({params}){
     <div className="seoInfo"><strong>Offres actualisées le {updated}</strong><span>{jobs.length?`${jobs.length} offre${jobs.length>1?'s':''} actuellement affichée${jobs.length>1?'s':''} • ${stats.employers} employeur${stats.employers>1?'s':''}`:'Aucune offre disponible pour le moment'}</span></div>
     {jobs.length>0&&stats.topContracts.length>0&&<p><strong>Contrats actuellement proposés :</strong> {stats.topContracts.map(([name,count])=>`${name} (${count})`).join(' • ')}.</p>}
     <h2>{jobs.length?`Offres ${label} à ${c.city}`:'Offres en cours de mise à jour'}</h2>
-    {jobs.length?<div className="seoJobs">{jobs.map(j=><Link key={j.id} href={`/offres/france-travail/${j.id}`} className="seoJob"><strong>{j.title}</strong><span>{j.company}</span><small>📍 {j.location}{j.contract?` • ${j.contract}`:''}{j.created?` • publiée le ${dateFr(j.created)}`:''}</small></Link>)}</div>:<p>Il n’y a pas d’annonce correspondant exactement à cette recherche actuellement. Cette page n’est pas proposée à l’indexation tant qu’elle ne contient aucune offre.</p>}
+    {jobs.length?<div className="seoJobs">{jobs.map(j=><Link key={j.id} href={`/offres/france-travail/${encodeURIComponent(j.id)}`} className="seoJob"><strong>{j.title}</strong><span>{j.company}</span><small>📍 {j.location}{j.contract?` • ${j.contract}`:''}{j.created?` • publiée le ${dateFr(j.created)}`:''}</small></Link>)}</div>:<p>Il n’y a pas d’annonce correspondant exactement à cette recherche actuellement. Cette page n’est pas proposée à l’indexation tant qu’elle ne contient aucune offre.</p>}
     <section className="seoRelated"><h2>Autres métiers recherchés à {c.city}</h2><div className="seoLinks">{related.map(x=><Link key={x[0]} href={`/emploi/${x[0]}/${c.citySlug}`}>Emploi {x[2]} à {c.city}</Link>)}</div>
     <h2>{label} dans d’autres villes</h2><div className="seoLinks">{nearby.map(x=><Link key={x[0]} href={`/emploi/${c.jobSlug}/${x[0]}`}>Emploi {label} à {x[1]}</Link>)}</div></section>
     <section className="seoGuide"><h2>Comment trouver un emploi de {label.toLowerCase()} à {c.city} ?</h2><p>Comparez les annonces récentes, le type de contrat et la distance avant de candidater. Répondre rapidement avec un CV à jour augmente vos chances lorsqu’une entreprise recrute autour de {c.city}.</p><p><Link href="/conseils-emploi/faire-un-bon-cv">Préparer un bon CV</Link> · <Link href="/conseils-emploi/preparer-entretien-embauche">Préparer un entretien</Link> · <Link href="/conseils-emploi/organiser-recherche-emploi">Organiser sa recherche d’emploi</Link></p></section>

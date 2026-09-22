@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { allLandingPaths, landingConfig, landingJobs, SEO_CITIES, SEO_JOBS } from '../../../../lib/seoLanding';
 export const revalidate=1800;
 
@@ -35,7 +35,6 @@ export async function generateMetadata({params}){
 
 export default async function Page({params}){
   const p=await params,c=landingConfig(p.job,p.city);if(!c)notFound();
-  if(c.requestedJobSlug!==c.jobSlug) permanentRedirect(`/emploi/${c.jobSlug}/${c.citySlug}`);
   const jobs=await landingJobs(c.query,c.city);
   const stats=pageStats(jobs);
   const nearby=SEO_CITIES.filter(x=>x[0]!==c.citySlug).slice(0,6);

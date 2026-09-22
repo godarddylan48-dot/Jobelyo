@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/google-indexing",
+      "schedule": "15 5 * * *"
+    },
+    {
+      "path": "/api/indexnow",
+      "schedule": "35 5 * * *"
+    }
+  ]
+}

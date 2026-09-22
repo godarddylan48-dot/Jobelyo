@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import { SEO_CITIES, SEO_JOBS } from '../../lib/seoLanding';
+export const metadata={title:'Emploi par métier et par ville',description:'Explorez les offres d’emploi par métier et par ville partout en France.',alternates:{canonical:'/emploi'}};
+export default function Page(){return <main className="seoPage"><div className="seoShell"><Link href="/" className="jobDetailBack">← Accueil Jobelyo</Link><h1>Offres d’emploi par métier et par ville</h1><p className="seoIntro">Accédez directement aux recherches d’emploi les plus utiles et consultez les offres disponibles autour des principales villes françaises.</p>{SEO_JOBS.map(j=><section className="seoCategory" key={j[0]}><h2>{j[2]}</h2><div className="seoLinks">{SEO_CITIES.map(c=><Link key={c[0]} href={`/emploi/${j[0]}/${c[0]}`}>{j[2]} à {c[1]}</Link>)}</div></section>)}</div></main>}

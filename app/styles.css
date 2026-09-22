@@ -841,8 +841,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
   }
   .resultSummaryGrid,
   .heroHighlights,
-  .heroPanelSteps,
-  .promiseRedesign{
+  .heroPanelSteps{
     grid-template-columns:1fr;
   }
 }

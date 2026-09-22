@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { track } from '@vercel/analytics';
 import Link from 'next/link';
@@ -17,13 +17,15 @@ function withTimeout(promise,message,timeoutMs=AUTH_TIMEOUT_MS){
 
 
 function AdBanner({slot}){
- const client=process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+ const client=process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
+ const adRef=useRef(null);
  useEffect(()=>{
-  if(!client||!slot)return;
+  if(!client||!slot||!adRef.current)return;
+  if(adRef.current.dataset.adsbygoogleStatus)return;
   try{(window.adsbygoogle=window.adsbygoogle||[]).push({})}catch{}
  },[client,slot]);
  if(!client||!slot)return null;
- return <aside className="adBlock" aria-label="Publicité"><span>Publicité</span><ins className="adsbygoogle" style={{display:'block'}} data-ad-client={client} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true" /></aside>;
+ return <aside className="adBlock" aria-label="Publicité"><span>Publicité</span><ins ref={adRef} className="adsbygoogle" style={{display:'block'}} data-ad-client={client} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true" /></aside>;
 }
 
 

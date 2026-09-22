@@ -661,7 +661,11 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     font-size:11px;
     line-height:1.25;
   }
-  .contentRedesign{padding:22px 12px 28px}
+  .contentRedesign{
+    padding-top:22px;
+    padding-bottom:28px;
+    padding-inline:12px;
+  }
   .headlineRedesign{
     gap:8px;
     margin-bottom:12px;

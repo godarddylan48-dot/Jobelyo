@@ -13,6 +13,9 @@ globalThis.__jobelyoJoobleCache = joobleCache;
 const ADZUNA_TTL = 2 * 60 * 60 * 1000;
 const adzunaCache = globalThis.__jobelyoAdzunaCache || new Map();
 globalThis.__jobelyoAdzunaCache = adzunaCache;
+const COMMUNE_TTL = 24 * 60 * 60 * 1000;
+const communeCache = globalThis.__jobelyoCommuneCache || new Map();
+globalThis.__jobelyoCommuneCache = communeCache;
 
 const JOB_TERMS = [
   'livreur','chauffeur livreur','chauffeur-livreur','chauffeur','conducteur','conducteur livreur',
@@ -21,9 +24,27 @@ const JOB_TERMS = [
   'ménage','menage','agent d entretien','agent d\'entretien','aide ménagère','aide menagere',
   'assistant administratif','secrétaire','secretaire','comptable','commercial','technicien','mécanicien','mecanicien'
 ];
+const CITY_ALIASES = new Map([
+  ['st etienne', 'saint etienne'],
+  ['st-etienne', 'saint-etienne'],
+  ['ste', 'sainte'],
+  ['aix en provence', 'aix-en-provence'],
+  ['clermont ferrand', 'clermont-ferrand'],
+  ['le mans', 'le-mans'],
+  ['la rochelle', 'la-rochelle']
+]);
 
 function normalizeText(value='') {
   return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function sanitizeSearchInput(value='') {
+  return String(value).replace(/\s+/g,' ').trim();
+}
+function resolveCityName(city=''){
+  const raw = sanitizeSearchInput(city);
+  const normalized = normalizeText(raw);
+  const aliased = CITY_ALIASES.get(normalized);
+  return aliased ? sanitizeSearchInput(aliased) : raw;
 }
 
 function distance(a,b){
@@ -43,6 +64,10 @@ function distance(a,b){
 function suggestJob(query){
   const q=normalizeText(query);
   if(!q || q.length<4) return null;
+  for(const term of JOB_TERMS){
+    const normTerm = normalizeText(term);
+    if(q.includes(normTerm) || normTerm.includes(q)) return term;
+  }
   let best=null, bestScore=Infinity;
   for(const term of JOB_TERMS){
     const score=distance(q,term);
@@ -68,6 +93,9 @@ async function getToken() {
 
 async function communeCode(city) {
   if (!city) return null;
+  const key = normalizeText(city);
+  const cached = communeCache.get(key);
+  if (cached && Date.now() - cached.time < COMMUNE_TTL) return cached.code;
   const u = new URL('https://geo.api.gouv.fr/communes');
   u.searchParams.set('nom', city);
   u.searchParams.set('fields', 'nom,code,population');
@@ -76,7 +104,9 @@ async function communeCode(city) {
   const r = await fetch(u, { next:{revalidate:86400} });
   if (!r.ok) return null;
   const data = await r.json();
-  return data?.[0]?.code || null;
+  const code = data?.[0]?.code || null;
+  communeCache.set(key, { time: Date.now(), code });
+  return code;
 }
 
 function joobleRadius(radius) {
@@ -242,8 +272,8 @@ function dedupeJobs(jobs) {
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const q = (searchParams.get('q') || '').trim();
-    const city = (searchParams.get('city') || '').trim();
+    const q = sanitizeSearchInput(searchParams.get('q') || '');
+    const city = resolveCityName(searchParams.get('city') || '');
     const radius = Math.min(100, Math.max(0, Number(searchParams.get('radius') || 30)));
 
     let effectiveQ = q;

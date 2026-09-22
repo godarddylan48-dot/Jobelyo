@@ -63,6 +63,18 @@ export default function Home(){
  const [adminData,setAdminData]=useState(null),[adminBusy,setAdminBusy]=useState(false),[adminError,setAdminError]=useState('');
  const [appOpen,setAppOpen]=useState(false),[installPrompt,setInstallPrompt]=useState(null),[appInstalled,setAppInstalled]=useState(false);
  const [latestJobs,setLatestJobs]=useState([]);
+ const featuredJobLinks=[
+  ['chauffeur-livreur','Chauffeur-livreur'],
+  ['preparateur-commandes','Préparateur de commandes'],
+  ['vendeur','Vendeur'],
+  ['agent-entretien','Agent d’entretien']
+ ];
+ const featuredCityLinks=[
+  ['paris','Paris'],
+  ['lyon','Lyon'],
+  ['marseille','Marseille'],
+  ['lille','Lille']
+ ];
 
  useEffect(()=>{
   let alive=true;
@@ -313,7 +325,7 @@ export default function Home(){
  }
  const sourceJobs=favoritesOnly?favorites:jobs;
  const favoriteIds=new Set(favorites.map(o=>o.id));
- const filteredJobs=sourceJobs.filter(o=>{
+ const filteredJobs=useMemo(()=>sourceJobs.filter(o=>{
   const c=(o.contract||'').toLowerCase();
   const contractOk=contract==='all'||(contract==='cdi'&&c.includes('cdi'))||(contract==='cdd'&&c.includes('cdd'))||(contract==='interim'&&(c.includes('intérim')||c.includes('interim')));
   const min=Number(minSalary||0);
@@ -331,7 +343,7 @@ export default function Home(){
   if(sort==='recent') return new Date(b.created||0)-new Date(a.created||0);
   if(sort==='salary') return (salaryNumber(b.salary||'')||0)-(salaryNumber(a.salary||'')||0);
   return 0;
- });
+ }),[sourceJobs,contract,minSalary,salaryOnly,sourceFilter,dateRange,sort]);
  const activeFilters=(contract!=='all'?1:0)+(minSalary?1:0)+(salaryOnly?1:0)+(dateRange!=='all'?1:0)+(sourceFilter!=='all'?1:0);
  function resetFilters(){setContract('all');setMinSalary('');setSalaryOnly(false);setDateRange('all');setSourceFilter('all')}
  function formatDate(value){
@@ -359,14 +371,15 @@ export default function Home(){
  }
 
  return <main>
-  <section className="hero"><div className="nav"><div className="brand">Job<span>elyo</span></div><div className="navActions"><button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}}>📱 <span>Installer l’app</span></button><button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button><button className="accountButton" onClick={()=>{setAccountOpen(true);if(profile?.role==='admin')setTimeout(loadAdmin,0)}}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button><div className="pill">🇫🇷 France entière</div></div></div><div className="heroContent">
+  <section className="hero"><div className="nav"><div className="brand">Job<span>elyo</span></div><div className="navActions"><button className="appButton" onClick={()=>{track('app_menu_open');setAppOpen(true)}} aria-label="Installer l’application Jobelyo">📱 <span>Installer l’app</span></button><button className={favoritesOnly?'navFavorite active':'navFavorite'} onClick={()=>favoritesOnly?backToResults():openFavorites()} aria-label={favoritesOnly?'Afficher toutes les offres':'Afficher mes offres favorites'}>♥ <span>Mes favoris</span>{favorites.length>0&&<b>{favorites.length}</b>}</button><button className="accountButton" onClick={()=>{setAccountOpen(true);if(profile?.role==='admin')setTimeout(loadAdmin,0)}} aria-label={user?'Ouvrir mon compte':'Se connecter'}>{user?`👤 ${profile?.role==='admin'?'Admin':'Mon compte'}`:'👤 Se connecter'}</button><div className="pill">🇫🇷 France entière</div></div></div><div className="heroContent">
    <div className="eyebrow">Simple • rapide • sans compte</div><h1>Trouvez un emploi<br/><span>près de chez vous.</span></h1><p>Des offres partout en France. Recherchez, consultez les détails et postulez directement sur le site prévu par l’annonce.</p>{nationalTotal&&<div className="nationalStat"><div><strong>+{nationalTotal.toLocaleString('fr-FR')}</strong><span>offres disponibles partout en France</span></div><small>Compteur national France Travail • Jooble ajoute encore d’autres annonces dans vos recherches</small></div>}
-   <form id="searchForm" className="search" onSubmit={search}><label>🔎<input value={job} onChange={e=>setJob(e.target.value)} placeholder="Métier, ex. chauffeur-livreur"/></label><label>📍<input value={place} onChange={e=>setPlace(e.target.value)} placeholder="Ville, ex. Amiens"/></label><select value={radius} onChange={e=>setRadius(e.target.value)}><option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select><button disabled={loading}>{loading?'Recherche…':'Trouver un emploi'}</button></form>
+  <form id="searchForm" className="search" onSubmit={search}><label>🔎<input value={job} onChange={e=>setJob(e.target.value)} placeholder="Métier, ex. chauffeur-livreur" aria-label="Métier recherché"/></label><label>📍<input value={place} onChange={e=>setPlace(e.target.value)} placeholder="Ville, ex. Amiens" aria-label="Ville recherchée"/></label><select value={radius} onChange={e=>setRadius(e.target.value)} aria-label="Rayon de recherche"><option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select><button disabled={loading} aria-label="Lancer la recherche d’offres">{loading?'Recherche…':'Trouver un emploi'}</button></form>
    <div className="searchTools"><button className="alertTrigger" onClick={()=>setAlertOpen(true)}>🔔 Créer une alerte</button><button className="filterTrigger" onClick={()=>setFiltersOpen(true)}>☰ Filtres{activeFilters?` (${activeFilters})`:''}</button><div className="sortWrap"><span>Trier :</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="recent">Plus récentes</option><option value="salary">Salaire le plus élevé</option><option value="default">Pertinence</option></select></div><div className="activeFilterPills">{contract!=='all'&&<span>{contract==='interim'?'Intérim':contract.toUpperCase()}</span>}{minSalary&&<span>≥ {minSalary} €/mois</span>}{salaryOnly&&<span>Salaire indiqué</span>}{dateRange!=='all'&&<span>Moins de {dateRange} j</span>}{sourceFilter!=='all'&&<span>{sourceFilter==='jooble'?'Jooble':sourceFilter==='adzuna'?'Adzuna':'France Travail'}</span>}</div></div>
+  <div className="quickSearchLinks" aria-label="Recherches populaires"><div><span>Métiers populaires :</span>{featuredJobLinks.map(([slug,label])=><Link key={slug} href={`/emploi/${slug}/paris`}>Emploi {label}</Link>)}</div><div><span>Villes populaires :</span>{featuredCityLinks.map(([slug,label])=><Link key={slug} href={`/emploi/chauffeur-livreur/${slug}`}>Offres à {label}</Link>)}</div><div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div></div>
   </div></section>
 
 
-  <section id="results" className="content"><div className="headline"><div><span className="small">{favoritesOnly?'MES FAVORIS':searched?'OFFRES D’EMPLOI':'OFFRES RÉCENTES'}</span><h2>{loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées'}</h2></div>{favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}</div>{!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
+  <section id="results" className="content"><div className="headline"><div><span className="small">{favoritesOnly?'MES FAVORIS':searched?'OFFRES D’EMPLOI':'OFFRES RÉCENTES'}</span><h2>{loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées'}</h2></div>{favoritesOnly&&<button className="backResultsTop" onClick={backToResults}>← Revenir aux offres</button>}</div>{!favoritesOnly&&searched&&!loading&&!error&&filteredJobs.length>0?<div className="resultsHint">Affinez vos résultats avec les filtres, ou explorez les pages métier/ville pour trouver plus d’offres locales.</div>:null}{!favoritesOnly&&searched&&!loading&&!error&&(sourceCounts.franceTravail||sourceCounts.jooble||sourceCounts.adzuna)?<div className="sourceSummary"><span>France Travail <b>{sourceCounts.franceTravail}</b></span><span>Jooble <b>{sourceCounts.jooble}</b></span><span>Adzuna <b>{sourceCounts.adzuna}</b></span></div>:null}
    {!searched&&!favoritesOnly&&latestJobs.length>0&&<div className="latestOffers">{latestJobs.map(o=><Link className="latestOfferCard" key={o.id} href={`/offres/france-travail/${encodeURIComponent(o.id)}`} onClick={()=>track('job_view',{source:'francetravail',job_title:String(o.title||'').slice(0,100),city:String(o.location||'').slice(0,80),placement:'homepage_latest'})}><div className="latestOfferIcon">💼</div><div className="latestOfferBody"><h3>{o.title}</h3><p>{o.company}</p><div><span>📍 {o.location||'France'}</span>{o.contract&&<span>• {o.contract}</span>}</div></div><strong className="latestOfferArrow">›</strong></Link>)}</div>}
    {correctedQuery&&<div className="correctionNotice">✓ Recherche corrigée automatiquement en <strong>{correctedQuery}</strong></div>}
    {error&&<div className="empty">⚠️ {error}</div>}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { allLandingPaths, landingConfig, landingJobs, SEO_CITIES, SEO_JOBS } from '../../../../lib/seoLanding';
+import { allLandingPaths, landingConfig, landingJobs, SEO_CITIES, SEO_INTENTS, SEO_JOBS } from '../../../../lib/seoLanding';
 export const revalidate=1800;
 
 export function generateStaticParams() {
@@ -39,6 +39,7 @@ export default async function Page({params}){
   const stats=pageStats(jobs);
   const nearby=SEO_CITIES.filter(x=>x[0]!==c.citySlug).slice(0,6);
   const related=SEO_JOBS.filter(x=>x[0]!==c.jobSlug).slice(0,5);
+  const relatedIntents=SEO_INTENTS.slice(0,5);
   const label=c.seoJobName||c.jobName;
   const updated=new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date());
   const schema={
@@ -59,6 +60,7 @@ export default async function Page({params}){
     {jobs.length?<div className="seoJobs">{jobs.map(j=><Link key={j.id} href={`/offres/france-travail/${encodeURIComponent(j.id)}`} className="seoJob"><strong>{j.title}</strong><span>{j.company}</span><small>📍 {j.location}{j.contract?` • ${j.contract}`:''}{j.created?` • publiée le ${dateFr(j.created)}`:''}</small></Link>)}</div>:<p>Il n’y a pas d’annonce correspondant exactement à cette recherche actuellement. Cette page n’est pas proposée à l’indexation tant qu’elle ne contient aucune offre.</p>}
     <section className="seoRelated"><h2>Autres métiers recherchés à {c.city}</h2><div className="seoLinks">{related.map(x=><Link key={x[0]} href={`/emploi/${x[0]}/${c.citySlug}`}>Emploi {x[2]} à {c.city}</Link>)}</div>
     <h2>{label} dans d’autres villes</h2><div className="seoLinks">{nearby.map(x=><Link key={x[0]} href={`/emploi/${c.jobSlug}/${x[0]}`}>Emploi {label} à {x[1]}</Link>)}</div></section>
+    <section className="seoRelated"><h2>Recherches par situation à {c.city}</h2><div className="seoLinks">{relatedIntents.map(i=><Link key={i[0]} href={`/emploi-type/${i[0]}/${c.citySlug}`}>Emploi {i[2].toLowerCase()} à {c.city}</Link>)}</div></section>
     <section className="seoGuide"><h2>Comment trouver un emploi de {label.toLowerCase()} à {c.city} ?</h2><p>Comparez les annonces récentes, le type de contrat et la distance avant de candidater. Répondre rapidement avec un CV à jour augmente vos chances lorsqu’une entreprise recrute autour de {c.city}.</p><p><Link href="/conseils-emploi/faire-un-bon-cv">Préparer un bon CV</Link> · <Link href="/conseils-emploi/preparer-entretien-embauche">Préparer un entretien</Link> · <Link href="/conseils-emploi/organiser-recherche-emploi">Organiser sa recherche d’emploi</Link></p></section>
     <p className="seoFoot">Jobelyo facilite la recherche d’emploi en regroupant des annonces et vous redirige vers le site d’origine pour candidater.</p>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}} />

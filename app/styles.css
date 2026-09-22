@@ -675,7 +675,6 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     gap:8px;
     margin-bottom:10px;
   }
-  .resultSummaryGrid .summaryCard:last-child,
   .promiseRedesign>div:last-child{
     grid-column:1 / -1;
   }

@@ -83,3 +83,99 @@
 .jobDetailList{margin:0 0 10px;padding-left:18px;display:grid;gap:7px;color:#334155;line-height:1.5}.jobDetailList li strong{color:#172033}
 .jobDetailNavLinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.jobDetailNavLinks a{display:inline-flex;padding:9px 12px;border:1px solid #d8e0ea;border-radius:999px;text-decoration:none;color:#244dc7;font-size:13px;font-weight:700}
 @media(max-width:760px){.quickSearchLinks a{font-size:12px;padding:7px 10px}.jobDetailNavLinks a{width:100%;justify-content:center}}
+
+/* --- Modern UI proposal (preview) --- */
+:root{
+  --bg:#f3f6ff;
+  --bg-soft:#ffffffcc;
+  --card:#ffffffd9;
+  --text:#0f172a;
+  --muted:#64748b;
+  --brand:#2563eb;
+  --brand-2:#7c3aed;
+  --ok:#059669;
+  --line:#dbe3f2;
+  --shadow:0 12px 30px rgba(37,99,235,.12);
+}
+body{
+  background:radial-gradient(1300px 560px at 8% -10%,#dbeafe 0,transparent 55%),radial-gradient(900px 480px at 100% 0,#ede9fe 0,transparent 52%),var(--bg);
+  color:var(--text);
+}
+.hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8 55%,#7c3aed);
+  color:#f8fafc;
+  border-bottom:0;
+  padding:0 20px 38px;
+}
+.nav,.heroContent,.content,.promise{max-width:1160px}
+.brand{color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.18)}
+.brand span{color:#93c5fd}
+.pill,.navFavorite,.accountButton{
+  background:rgba(255,255,255,.16)!important;
+  color:#eef6ff!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+  backdrop-filter:blur(6px);
+}
+.hero h1,.hero h1 span{color:#fff}
+.hero p{color:#dbeafe}
+.search,.offerCounter,.card,.promise,.empty,.jobModal,.filterModal,.legalCard,.jobDetailArticle{
+  background:var(--card);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(8px);
+}
+.search{
+  border-radius:18px;
+  padding:10px;
+  box-shadow:0 14px 36px rgba(15,23,42,.24);
+}
+.search label,.search select,.salaryInput,.alertForm input{
+  background:#fff;
+  border:1px solid #d8e2f2;
+}
+.search button,.jobButton,.applyButton,.applyFilters{
+  background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;
+  border:0!important;
+}
+.search button:hover,.jobButton:hover,.applyButton:hover,.applyFilters:hover{filter:brightness(1.05)}
+.filterTrigger,.detailButton,.backButton,.resetButton,.favoriteTop,.favoritesChoice,.navFavorite,.accountButton{
+  border-radius:12px;
+}
+.content{padding-top:42px}
+.headline h2{font-size:32px;color:#0b1635}
+.card{
+  border-radius:18px;
+  padding:20px;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(15,23,42,.13)}
+.icon{
+  background:linear-gradient(135deg,#dbeafe,#ede9fe);
+  color:#1d4ed8;
+  border:1px solid #c8d7fb;
+}
+.meta span,.modalMeta span,.sourceSummary span{
+  background:#edf3ff;
+  border:1px solid #d7e4ff;
+  color:#2b426f;
+  border-radius:999px;
+}
+.jobButton,.detailButton,.applyButton,.backButton{font-weight:900}
+.promise{
+  border-radius:20px;
+  margin-bottom:54px;
+}
+.promise strong{color:#2563eb}
+footer{color:#51617a}
+footer .brand{color:#1e3a8a;text-shadow:none}
+.modalBackdrop{background:rgba(15,23,42,.62)}
+.heart{box-shadow:0 8px 18px rgba(15,23,42,.12)}
+.heart.active{background:#ffe9f0;border-color:#f5b3c4;color:#e11d48!important}
+.legalPage,.jobDetailPage,.seoPage{
+  background:radial-gradient(1200px 420px at 0 -15%,#dbeafe 0,transparent 55%),#f7faff;
+}
+@media(max-width:760px){
+  .hero{padding:0 14px 30px}
+  .hero h1{font-size:34px}
+  .content{padding-top:30px}
+}

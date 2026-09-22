@@ -17,6 +17,16 @@ function employmentType(contract = '') {
   if (c.includes('alternance') || c.includes('apprentissage')) return 'INTERN';
   return undefined;
 }
+function plusDays(value, days = 45) {
+  const d = new Date(value || '');
+  if (Number.isNaN(d.getTime())) return undefined;
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+}
+function isRemoteFriendly(job) {
+  const hay = `${job.title || ''} ${job.description || ''}`.toLowerCase();
+  return hay.includes('télétravail') || hay.includes('teletravail');
+}
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -49,13 +59,22 @@ export default async function JobPage({ params }) {
   const similarJobs = await getSimilarFranceTravailJobs(job, 6);
 
   const canonical = `https://www.jobelyo.fr/offres/france-travail/${encodeURIComponent(job.id)}`;
+  const cleanDescription = cleanText(job.description);
   const jobPosting = {
     '@context': 'https://schema.org',
     '@type': 'JobPosting',
     title: job.title,
-    description: job.description,
+    description: cleanDescription,
+    identifier: {
+      '@type': 'PropertyValue',
+      name: 'France Travail',
+      value: String(job.id)
+    },
     datePosted: job.datePosted || undefined,
+    dateModified: job.dateUpdated || undefined,
+    validThrough: plusDays(job.dateUpdated || job.datePosted, 45),
     employmentType: employmentType(job.contract),
+    workHours: job.workTime || undefined,
     hiringOrganization: {
       '@type': 'Organization',
       name: job.company
@@ -69,6 +88,13 @@ export default async function JobPage({ params }) {
         addressCountry: 'FR'
       }
     } : undefined,
+    applicantLocationRequirements: {
+      '@type': 'Country',
+      name: 'FR'
+    },
+    jobLocationType: isRemoteFriendly(job) ? 'TELECOMMUTE' : undefined,
+    qualifications: [job.experience, ...(job.education || [])].filter(Boolean).join(' • ') || undefined,
+    skills: (job.skills || []).join(', ') || undefined,
     url: canonical,
     directApply: false
   };
@@ -84,13 +110,29 @@ export default async function JobPage({ params }) {
           <div className="jobDetailMeta">
             {job.location && <span>📍 {job.location}</span>}
             {job.contract && <span>{job.contract}</span>}
+            {job.workTime && <span>{job.workTime}</span>}
             {job.salary && <span>{job.salary}</span>}
             {job.datePosted && <span>Publiée le {new Date(job.datePosted).toLocaleDateString('fr-FR')}</span>}
           </div>
           <h2>Description du poste</h2>
           <div className="jobDetailDescription">{job.description}</div>
+          {(job.contractNature || job.experience || (job.education || []).length || (job.skills || []).length || (job.drivingLicenses || []).length) && <>
+            <h2>Informations complémentaires</h2>
+            <ul className="jobDetailList">
+              {job.contractNature && <li><strong>Nature du contrat :</strong> {job.contractNature}</li>}
+              {job.experience && <li><strong>Expérience :</strong> {job.experience}</li>}
+              {(job.education || []).length > 0 && <li><strong>Formation :</strong> {job.education.join(' • ')}</li>}
+              {(job.skills || []).length > 0 && <li><strong>Compétences :</strong> {job.skills.join(' • ')}</li>}
+              {(job.drivingLicenses || []).length > 0 && <li><strong>Permis :</strong> {job.drivingLicenses.join(' • ')}</li>}
+            </ul>
+          </>}
           <TrackedApplyLink href={job.url} title={job.title} city={job.city || job.location} />
           <p className="jobDetailNote">Jobelyo référence cette offre et vous redirige vers le site d’origine pour candidater.</p>
+          <div className="jobDetailNavLinks">
+            <Link href="/offres">Voir d’autres offres récentes</Link>
+            <Link href="/emploi">Explorer par métier et par ville</Link>
+            <Link href="/emploi-type">Explorer par situation</Link>
+          </div>
         </article>
         {similarJobs.length > 0 && <section className="similarJobs">
           <h2>Offres similaires près de chez vous</h2>

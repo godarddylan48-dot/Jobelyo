@@ -360,8 +360,6 @@ export default function Home(){
 
  const resultTag=favoritesOnly?'MES FAVORIS':searched?'RÉSULTATS DE RECHERCHE':'OFFRES RÉCENTES';
  const resultTitle=loading?'Recherche en cours…':favoritesOnly?`${filteredJobs.length} favori${filteredJobs.length!==1?'s':''}`:searched?`${filteredJobs.length} offre${filteredJobs.length!==1?'s':''} trouvée${filteredJobs.length!==1?'s':''}`:'Les dernières offres publiées';
- const totalSources=sourceCounts.franceTravail+sourceCounts.jooble+sourceCounts.adzuna;
-
  return <main className="homePage">
   <section className="hero heroRedesign">
    <div className="nav navSurface">
@@ -406,22 +404,7 @@ export default function Home(){
       <div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div>
      </div>
     </div>
-    <aside className="heroPanel" aria-label="Aperçu Jobelyo">
-     <div className="heroPanelBadge">Navigation repensée</div>
-     <h2>Un tableau de bord clair pour vos recherches.</h2>
-     <p>Accédez en un geste à la recherche, aux favoris, aux filtres et à votre compte, sans changer vos habitudes ni les fonctionnalités existantes.</p>
-     <div className="heroHighlights">
-      <div><span>Favoris</span><strong>{favorites.length}</strong><small>offre{favorites.length!==1?'s':''} enregistrée{favorites.length!==1?'s':''}</small></div>
-      <div><span>Alertes</span><strong>{user?myAlerts.length:'0'}</strong><small>{user?'liées à votre compte':'disponibles avec compte'}</small></div>
-      <div><span>Sources</span><strong>{searched?totalSources||filteredJobs.length:3}</strong><small>France Travail, Jooble, Adzuna</small></div>
-     </div>
-     <div className="heroPanelSteps">
-      <div><strong>1</strong><span>Recherchez</span><small>Métier, ville et rayon</small></div>
-      <div><strong>2</strong><span>Comparez</span><small>Cartes lisibles et filtres rapides</small></div>
-      <div><strong>3</strong><span>Postulez</span><small>Sur le site officiel de l’annonce</small></div>
-     </div>
-    </aside>
-   </div>
+
   </section>
 
   <section id="results" className="content contentRedesign">

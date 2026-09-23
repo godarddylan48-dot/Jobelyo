@@ -444,7 +444,7 @@ export default function Home(){
    {!favoritesOnly&&searched&&!loading&&!error&&filteredJobs.length===0&&<div className="empty">{jobs.length?<>Aucune offre ne correspond à vos filtres. <button className="resetInline" onClick={resetFilters}>Réinitialiser les filtres</button></>:<>Aucune offre trouvée. Vérifiez le métier ou essayez un rayon plus large.</>}</div>}</div>
   </section>
 
-  <section className="promise promiseRedesign"><div><strong>1.</strong><span>Vous recherchez</span><small>Métier + ville + rayon</small></div><div><strong>2.</strong><span>Vous comparez</span><small>Cartes plus lisibles et actions plus claires</small></div><div><strong>3.</strong><span>Vous postulez</span><small>Sur le site officiel de l’annonce</small></div></section>
+  <section className="promise promiseRedesign"><div><strong>1.</strong><span>Vous recherchez</span><small>Métier + ville + rayon</small></div><div><strong>2.</strong><span>Vous comparez</span><small>Cartes plus lisibles et actions plus claires</small></div><div className="promiseWide"><strong>3.</strong><span>Vous postulez</span><small>Sur le site officiel de l’annonce</small></div></section>
   <footer className="siteFooter"><div className="siteFooterTop"><div><div className="brand">Job<span>elyo</span></div><p>Recherche d’offres en France • candidature sans compte Jobelyo.</p></div><nav className="footerLinks" aria-label="Informations"><Link href="/conseils-emploi">Conseils emploi</Link><Link href="/a-propos">À propos</Link><Link href="/contact">Contact</Link><Link href="/mentions-legales">Mentions légales</Link><Link href="/confidentialite">Confidentialité</Link></nav></div></footer>
 
 

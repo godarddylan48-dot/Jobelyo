@@ -196,7 +196,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
 }
 .homeHeroGrid{
   display:grid;
-  grid-template-columns:minmax(0,1.55fr) minmax(300px,.9fr);
+  grid-template-columns:minmax(0,1fr);
   gap:22px;
   align-items:start;
 }

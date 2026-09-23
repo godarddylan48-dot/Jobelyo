@@ -401,7 +401,7 @@ export default function Home(){
      <div className="quickSearchLinks quickSearchLinksRedesign" aria-label="Recherches populaires">
       <div><span>Métiers populaires</span>{featuredJobLinks.map(([slug,label])=><Link key={slug} href={`/emploi/${slug}/paris`}>Emploi {label}</Link>)}</div>
       <div><span>Villes populaires</span>{featuredCityLinks.map(([slug,label])=><Link key={slug} href={`/emploi/chauffeur-livreur/${slug}`}>Offres à {label}</Link>)}</div>
-      <div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div>
+      
      </div>
     </div>
     </div>

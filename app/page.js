@@ -404,6 +404,7 @@ export default function Home(){
       <div><Link href="/emploi">Toutes les pages métier/ville</Link><Link href="/emploi-type">Toutes les pages par situation</Link></div>
      </div>
     </div>
+    </div>
 
   </section>
 

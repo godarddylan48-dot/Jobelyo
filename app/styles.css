@@ -550,7 +550,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     padding:10px 12px!important;
     border-radius:14px!important;
   }
-  .searchFieldLabel{font-size:9px}
+  .searchFieldLabel{font-size:10px}
   .searchFieldControl{gap:8px}
   .searchFieldControl span{font-size:15px}
   .searchField input{font-size:15px}
@@ -588,8 +588,8 @@ footer .brand{color:#1e3a8a;text-shadow:none}
   }
   .activeFilterPills{gap:6px}
   .activeFilterPills span{
-    padding:6px 8px;
-    font-size:11px;
+    padding:7px 9px;
+    font-size:12px;
   }
   .quickSearchLinksRedesign>div{
     padding:10px 11px;
@@ -822,7 +822,7 @@ footer .brand{color:#1e3a8a;text-shadow:none}
     line-height:1.25;
   }
   .siteFooter{
-    padding:0 12px 14px;
+    padding:0 16px 14px;
   }
   .siteFooterTop{
     flex-direction:column;
